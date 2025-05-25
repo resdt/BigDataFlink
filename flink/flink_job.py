@@ -6,14 +6,9 @@ env = StreamExecutionEnvironment.get_execution_environment()
 settings = EnvironmentSettings.in_streaming_mode()
 t_env = StreamTableEnvironment.create(env, environment_settings=settings)
 
-# Optional: Drop records with NULL in NOT NULL columns
-t_env.get_config().get_configuration().set_string(
-    "table.exec.sink.not-null-enforcer", "drop"
-)
-
 print("🚀 Flink ETL job started")
 
-# 2. Kafka source table
+# Kafka source table
 print("📦 Creating Kafka source...")
 t_env.execute_sql(
     """
@@ -94,7 +89,6 @@ print("🛠 Creating dim_customers_sink table...")
 t_env.execute_sql(
     """
     CREATE TABLE dim_customers_sink (
-        old_id INT,
         first_name STRING,
         last_name STRING,
         age INT,
@@ -104,7 +98,7 @@ t_env.execute_sql(
         pet_type STRING,
         pet_name STRING,
         pet_breed STRING,
-        PRIMARY KEY (old_id) NOT ENFORCED
+        PRIMARY KEY (email) NOT ENFORCED
     ) WITH (
         'connector' = 'jdbc',
         'url' = 'jdbc:postgresql://postgres:5432/bigdata',
@@ -120,7 +114,6 @@ t_env.execute_sql(
     """
     INSERT INTO dim_customers_sink
     SELECT
-        id,
         customer_first_name,
         customer_last_name,
         customer_age,
@@ -139,13 +132,12 @@ print("🛠 Creating dim_sellers_sink table...")
 t_env.execute_sql(
     """
     CREATE TABLE dim_sellers_sink (
-        old_id INT,
         first_name STRING,
         last_name STRING,
         email STRING,
         country STRING,
         postal_code STRING,
-        PRIMARY KEY (old_id) NOT ENFORCED
+        PRIMARY KEY (email) NOT ENFORCED
     ) WITH (
         'connector' = 'jdbc',
         'url' = 'jdbc:postgresql://postgres:5432/bigdata',
@@ -161,7 +153,6 @@ t_env.execute_sql(
     """
     INSERT INTO dim_sellers_sink
     SELECT
-        id,
         seller_first_name,
         seller_last_name,
         seller_email,
@@ -176,7 +167,6 @@ print("🛠 Creating dim_products_sink table...")
 t_env.execute_sql(
     """
     CREATE TABLE dim_products_sink (
-        old_id INT,
         name STRING,
         category STRING,
         price DECIMAL(10,2),
@@ -191,7 +181,7 @@ t_env.execute_sql(
         release_date DATE,
         expiry_date DATE,
         pet_category STRING,
-        PRIMARY KEY (old_id) NOT ENFORCED
+        PRIMARY KEY (name, category) NOT ENFORCED
     ) WITH (
         'connector' = 'jdbc',
         'url' = 'jdbc:postgresql://postgres:5432/bigdata',
@@ -207,7 +197,6 @@ t_env.execute_sql(
     """
     INSERT INTO dim_products_sink
     SELECT
-        id,
         product_name,
         product_category,
         product_price,
@@ -231,7 +220,6 @@ print("🛠 Creating dim_stores_sink table...")
 t_env.execute_sql(
     """
     CREATE TABLE dim_stores_sink (
-        old_id INT,
         name STRING,
         location STRING,
         city STRING,
@@ -239,7 +227,7 @@ t_env.execute_sql(
         country STRING,
         phone STRING,
         email STRING,
-        PRIMARY KEY (old_id) NOT ENFORCED
+        PRIMARY KEY (email) NOT ENFORCED
     ) WITH (
         'connector' = 'jdbc',
         'url' = 'jdbc:postgresql://postgres:5432/bigdata',
@@ -255,7 +243,6 @@ t_env.execute_sql(
     """
     INSERT INTO dim_stores_sink
     SELECT
-        id,
         store_name,
         store_location,
         store_city,
@@ -272,7 +259,6 @@ print("🛠 Creating dim_suppliers_sink table...")
 t_env.execute_sql(
     """
     CREATE TABLE dim_suppliers_sink (
-        old_id INT,
         name STRING,
         contact STRING,
         email STRING,
@@ -280,7 +266,7 @@ t_env.execute_sql(
         address STRING,
         city STRING,
         country STRING,
-        PRIMARY KEY (old_id) NOT ENFORCED
+        PRIMARY KEY (email) NOT ENFORCED
     ) WITH (
         'connector' = 'jdbc',
         'url' = 'jdbc:postgresql://postgres:5432/bigdata',
@@ -296,7 +282,6 @@ t_env.execute_sql(
     """
     INSERT INTO dim_suppliers_sink
     SELECT
-        id,
         supplier_name,
         supplier_contact,
         supplier_email,

@@ -1,7 +1,8 @@
 -- Создание таблиц измерений
+DROP TABLE IF EXISTS dim_customers CASCADE;
+
 CREATE TABLE dim_customers (
     customer_id SERIAL PRIMARY KEY,
-    old_id INTEGER UNIQUE,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     age INTEGER,
@@ -13,9 +14,10 @@ CREATE TABLE dim_customers (
     pet_breed VARCHAR(100)
 );
 
+DROP TABLE IF EXISTS dim_sellers CASCADE;
+
 CREATE TABLE dim_sellers (
     seller_id SERIAL PRIMARY KEY,
-    old_id INTEGER UNIQUE,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     email VARCHAR(100) UNIQUE,
@@ -23,9 +25,10 @@ CREATE TABLE dim_sellers (
     postal_code VARCHAR(20)
 );
 
+DROP TABLE IF EXISTS dim_products CASCADE;
+
 CREATE TABLE dim_products (
     product_id SERIAL PRIMARY KEY,
-    old_id INTEGER UNIQUE,
     name VARCHAR(100),
     category VARCHAR(100),
     price DECIMAL(10, 2),
@@ -42,21 +45,27 @@ CREATE TABLE dim_products (
     pet_category VARCHAR(50)
 );
 
+-- Уникальность товаров по названию и категории
+ALTER TABLE dim_products
+ADD CONSTRAINT uniq_product UNIQUE (name, category);
+
+DROP TABLE IF EXISTS dim_stores CASCADE;
+
 CREATE TABLE dim_stores (
     store_id SERIAL PRIMARY KEY,
-    old_id INTEGER UNIQUE,
     name VARCHAR(100),
     location VARCHAR(100),
     city VARCHAR(100),
     state VARCHAR(100),
     country VARCHAR(100),
     phone VARCHAR(20),
-    email VARCHAR(100)
+    email VARCHAR(100) UNIQUE
 );
+
+DROP TABLE IF EXISTS dim_suppliers CASCADE;
 
 CREATE TABLE dim_suppliers (
     supplier_id SERIAL PRIMARY KEY,
-    old_id INTEGER UNIQUE,
     name VARCHAR(100),
     contact VARCHAR(100),
     email VARCHAR(100) UNIQUE,
@@ -67,6 +76,8 @@ CREATE TABLE dim_suppliers (
 );
 
 -- Фактическая таблица продаж
+DROP TABLE IF EXISTS fact_sales CASCADE;
+
 CREATE TABLE fact_sales (
     sale_id SERIAL PRIMARY KEY,
     old_id INTEGER UNIQUE,
